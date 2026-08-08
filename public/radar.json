@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-08T19:24:37.577Z",
+  "generated_at": "2026-08-08T19:27:10.603Z",
   "genre": "ai",
-  "count": 15,
+  "count": 17,
   "items": [
     {
       "name": "Refybe",
       "entity_type": "tool",
-      "why_it_matters": "Refybe allows brands to generate custom interactive AI marketing games in their own brand identity.",
+      "why_it_matters": "Refybe is a new platform for generating AI marketing games aligned with a company's custom brand style.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T19:06:14.000Z",
@@ -14,10 +14,27 @@
       "mention_count": 1,
       "source_count": 1,
       "velocity_24h": 1,
-      "emerging_score": "9",
+      "emerging_score": "8.99",
       "status": "new",
       "sample_urls": [
         "https://refybe.com/en"
+      ]
+    },
+    {
+      "name": "agent-hop",
+      "entity_type": "tool",
+      "why_it_matters": "agent-hop reverse-engineers session formats across multiple AI coding agents, allowing developers to search and resume chat sessions seamlessly.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T19:10:10.000Z",
+      "last_seen_at": "2026-08-08T19:10:10.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.99",
+      "status": "new",
+      "sample_urls": [
+        "https://github.com/hetpatel-11/agent-hop"
       ]
     },
     {
@@ -55,9 +72,26 @@
       ]
     },
     {
+      "name": "parakeet-tdt-0.6B",
+      "entity_type": "model",
+      "why_it_matters": "parakeet-tdt-0.6B v2 is a speech recognition model capable of running directly in web browsers using WebGPU.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:58:01.000Z",
+      "last_seen_at": "2026-08-08T18:58:01.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.98",
+      "status": "new",
+      "sample_urls": [
+        "https://parakeet.narcotic.sh/"
+      ]
+    },
+    {
       "name": "Dirge",
       "entity_type": "tool",
-      "why_it_matters": "Dirge is an open-source, batteries-included coding agent written in Rust designed for speed and autonomous local development.",
+      "why_it_matters": "Dirge is an open-source, batteries-included AI coding agent implemented in Rust.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T18:46:09.000Z",
@@ -74,7 +108,7 @@
     {
       "name": "JustAPI",
       "entity_type": "tool",
-      "why_it_matters": "A high-performance Python web framework that implements its core execution engine and async runtime natively in Rust.",
+      "why_it_matters": "JustAPI is a Python web framework built on top of a high-performance Rust core.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T18:29:07.000Z",
@@ -91,7 +125,7 @@
     {
       "name": "Algebruh",
       "entity_type": "tool",
-      "why_it_matters": "A tool designed to verify and cross-check arithmetic claims using automated provers and SMT solvers including Z3, cvc5, and Lean.",
+      "why_it_matters": "Algebruh is a developer tool designed to cross-check arithmetic claims using formal solvers such as Z3, cvc5, and Lean.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T18:04:15.000Z",
@@ -143,9 +177,9 @@
       ]
     },
     {
-      "name": "Muse Spark 1.2",
+      "name": "Muse Code",
       "entity_type": "model",
-      "why_it_matters": "An updated long-context foundational model from Meta AI.",
+      "why_it_matters": "A newly introduced coding-focused model family from Meta designed for long-sequence context handling.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-05T23:58:35.000Z",
@@ -160,9 +194,9 @@
       ]
     },
     {
-      "name": "Muse Code",
+      "name": "Muse Spark 1.2",
       "entity_type": "model",
-      "why_it_matters": "A newly introduced coding-focused model family from Meta designed for long-sequence context handling.",
+      "why_it_matters": "An updated long-context foundational model from Meta AI.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-05T23:58:35.000Z",
