@@ -14,7 +14,12 @@
     font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   header { padding: 28px 20px 12px; max-width: 900px; margin: 0 auto; }
   h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -.02em; }
-  .sub { color: var(--muted); font-size: 13px; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .tabs { display: flex; gap: 8px; margin-top: 14px; }
+  .tab { background: var(--card); color: var(--muted); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  .tab:hover { color: var(--fg); }
+  .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
   main { max-width: 900px; margin: 0 auto; padding: 12px 20px 60px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     padding: 16px 18px; margin-bottom: 12px; }
@@ -38,18 +43,21 @@
 </head>
 <body>
 <header>
-  <h1>🛰️ Emerging Radar — AI &amp; Dev</h1>
+  <h1>🛰️ Emerging Radar</h1>
+  <div class="tabs" id="tabs">
+    <button data-src="./radar.json" class="tab active">AI &amp; Dev</button>
+    <button data-src="./radar-beyond.json" class="tab">Beyond the Peripheral</button>
+  </div>
   <div class="sub" id="sub">Loading…</div>
 </header>
 <main id="list"></main>
 <script>
-const RADAR_URL = new URLSearchParams(location.search).get("src") || "./radar.json";
 const esc = (s) => (s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c]));
 function ago(iso){ const h=(Date.now()-new Date(iso).getTime())/36e5; if(h<1)return"just now"; if(h<24)return Math.round(h)+"h ago"; return Math.round(h/24)+"d ago"; }
 
-fetch(RADAR_URL, { cache: "no-store" }).then(r => r.json()).then(data => {
-  document.getElementById("sub").textContent =
-    `${data.count} things · updated ${ago(data.generated_at)}`;
+function render(data) {
+  const label = data.flag_label || "Flagged";
+  document.getElementById("sub").textContent = `${data.count} things · updated ${ago(data.generated_at)}`;
   const list = document.getElementById("list");
   if (!data.items?.length) { list.innerHTML = '<div class="empty">Nothing on the radar yet.</div>'; return; }
   list.innerHTML = data.items.map(e => `
@@ -60,10 +68,10 @@ fetch(RADAR_URL, { cache: "no-store" }).then(r => r.json()).then(data => {
           <div class="tags">
             <span class="tag">${esc(e.entity_type)}</span>
             <span class="tag ${esc(e.status)}">${esc(e.status)}</span>
-            ${e.getvisus_relevant ? '<span class="tag gv">GetVisus</span>' : ''}
+            ${e.getvisus_relevant ? `<span class="tag gv">${esc(label)}</span>` : ''}
           </div>
           ${e.why_it_matters ? `<p class="why">${esc(e.why_it_matters)}</p>` : ''}
-          ${e.getvisus_relevant && e.getvisus_reason ? `<p class="gv">↳ GetVisus: ${esc(e.getvisus_reason)}</p>` : ''}
+          ${e.getvisus_relevant && e.getvisus_reason ? `<p class="gv">↳ ${esc(label)}: ${esc(e.getvisus_reason)}</p>` : ''}
           <div class="meta">
             <span>⚡ ${e.velocity_24h} in 24h</span>
             <span>📈 ${e.source_count} sources · ${e.mention_count} mentions</span>
@@ -76,10 +84,25 @@ fetch(RADAR_URL, { cache: "no-store" }).then(r => r.json()).then(data => {
         </div>
       </div>
     </div>`).join("");
-}).catch(err => {
-  document.getElementById("sub").textContent = "Failed to load radar.json";
-  console.error(err);
-});
+}
+
+function load(src) {
+  document.getElementById("sub").textContent = "Loading…";
+  document.getElementById("list").innerHTML = "";
+  fetch(`${src}?t=${Date.now()}`, { cache: "no-store" })
+    .then(r => r.json()).then(render)
+    .catch(err => { document.getElementById("sub").textContent = `Failed to load ${src}`; console.error(err); });
+}
+
+document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  load(btn.dataset.src);
+}));
+
+// initial: ?src= overrides, else first tab
+const override = new URLSearchParams(location.search).get("src");
+load(override || "./radar.json");
 </script>
 </body>
 </html>

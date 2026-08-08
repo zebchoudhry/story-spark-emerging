@@ -24,45 +24,102 @@ if (!GEMINI_API_KEY && !LOVABLE_API_KEY) {
 
 const args = process.argv.slice(2);
 const NO_INGEST = args.includes("--no-ingest");
-const OUT = (() => { const i = args.indexOf("--out"); return i >= 0 ? args[i + 1] : "public/radar.json"; })();
-const GENRE = "ai";
+const GENRE = (() => { const i = args.indexOf("--genre"); return i >= 0 ? args[i + 1] : "ai"; })();
 const LOOKBACK_HOURS = 72;
 const FETCH_TIMEOUT_MS = 12000;
 
-const AI_SOURCES = [
-  { type: "rss", url: "https://openai.com/news/rss.xml", name: "OpenAI" },
-  { type: "rss", url: "https://deepmind.google/blog/rss.xml", name: "Google DeepMind" },
-  { type: "rss", url: "https://huggingface.co/blog/feed.xml", name: "Hugging Face" },
-  { type: "rss", url: "https://github.blog/feed/", name: "GitHub Blog" },
-  { type: "rss", url: "https://blog.research.google/feeds/posts/default", name: "Google Research" },
-  { type: "rss", url: "https://bair.berkeley.edu/blog/feed.xml", name: "BAIR" },
-  { type: "rss", url: "https://hnrss.org/frontpage?points=100", name: "Hacker News" },
-  { type: "rss", url: "https://hnrss.org/show", name: "Show HN" },
-  { type: "rss", url: "https://hnrss.org/newest?q=AI+OR+LLM+OR+agent", name: "HN New (AI)" },
-  { type: "rss", url: "http://export.arxiv.org/rss/cs.AI", name: "arXiv cs.AI" },
-  { type: "rss", url: "http://export.arxiv.org/rss/cs.CL", name: "arXiv cs.CL" },
-  { type: "rss", url: "http://export.arxiv.org/rss/cs.LG", name: "arXiv cs.LG" },
-  { type: "rss", url: "https://techcrunch.com/category/artificial-intelligence/feed/", name: "TechCrunch AI" },
-  { type: "rss", url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", name: "The Verge AI" },
-  { type: "rss", url: "https://arstechnica.com/ai/feed/", name: "Ars Technica AI" },
-  { type: "rss", url: "https://venturebeat.com/category/ai/feed/", name: "VentureBeat AI" },
-  { type: "rss", url: "https://www.technologyreview.com/topic/artificial-intelligence/feed", name: "MIT Tech Review AI" },
-  { type: "rss", url: "https://simonwillison.net/atom/everything/", name: "Simon Willison" },
-  { type: "rss", url: "https://www.latent.space/feed", name: "Latent Space" },
-  { type: "rss", url: "https://jack-clark.net/feed/", name: "Import AI" },
-  { type: "rss", url: "https://www.deeplearning.ai/the-batch/feed/", name: "The Batch" },
-  { type: "rss", url: "https://www.semianalysis.com/feed", name: "SemiAnalysis" },
-  { type: "reddit", url: "LocalLLaMA", name: "r/LocalLLaMA" },
-  { type: "reddit", url: "MachineLearning", name: "r/MachineLearning" },
-  { type: "reddit", url: "artificial", name: "r/artificial" },
-  { type: "reddit", url: "OpenAI", name: "r/OpenAI" },
-  { type: "reddit", url: "singularity", name: "r/singularity" },
-  { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg", name: "Two Minute Papers" },
-  { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCZHmQk67mSJgfCCTn7xBfew", name: "Yannic Kilcher" },
-  { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCNJ1Ymd5yFuUPtn21xtRbbw", name: "AI Explained" },
-];
+// ---------- per-genre configuration ----------
+const GENRE_CONFIGS = {
+  ai: {
+    entityGuidance:
+      `Extract only concrete, named entities that are new/newly-popular: new standards or conventions (e.g. "agents.md","llms.txt","MCP"), new tools/frameworks/SDKs, models, protocols, techniques, benchmarks, datasets, or notable new products. DO NOT extract generic topics ("AI","machine learning","chatbots"), established products with no news, vague themes, or lone people's names.`,
+    types: ["standard","tool","model","protocol","technique","company","file","dataset","benchmark","concept"],
+    flagLabel: "GetVisus",
+    flagCriteria:
+      `true if a UK small-business SEO / website-audit SaaS (GetVisus) should support or write about it — e.g. a new web standard/file/convention that sites should adopt (like agents.md, llms.txt, MCP, AI-crawler behaviour); else false`,
+    fileIssues: true,
+    defaultOut: "public/radar.json",
+    sources: [
+      { type: "rss", url: "https://openai.com/news/rss.xml", name: "OpenAI" },
+      { type: "rss", url: "https://deepmind.google/blog/rss.xml", name: "Google DeepMind" },
+      { type: "rss", url: "https://huggingface.co/blog/feed.xml", name: "Hugging Face" },
+      { type: "rss", url: "https://github.blog/feed/", name: "GitHub Blog" },
+      { type: "rss", url: "https://blog.research.google/feeds/posts/default", name: "Google Research" },
+      { type: "rss", url: "https://bair.berkeley.edu/blog/feed.xml", name: "BAIR" },
+      { type: "rss", url: "https://hnrss.org/frontpage?points=100", name: "Hacker News" },
+      { type: "rss", url: "https://hnrss.org/show", name: "Show HN" },
+      { type: "rss", url: "https://hnrss.org/newest?q=AI+OR+LLM+OR+agent", name: "HN New (AI)" },
+      { type: "rss", url: "http://export.arxiv.org/rss/cs.AI", name: "arXiv cs.AI" },
+      { type: "rss", url: "http://export.arxiv.org/rss/cs.CL", name: "arXiv cs.CL" },
+      { type: "rss", url: "http://export.arxiv.org/rss/cs.LG", name: "arXiv cs.LG" },
+      { type: "rss", url: "https://techcrunch.com/category/artificial-intelligence/feed/", name: "TechCrunch AI" },
+      { type: "rss", url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", name: "The Verge AI" },
+      { type: "rss", url: "https://arstechnica.com/ai/feed/", name: "Ars Technica AI" },
+      { type: "rss", url: "https://venturebeat.com/category/ai/feed/", name: "VentureBeat AI" },
+      { type: "rss", url: "https://www.technologyreview.com/topic/artificial-intelligence/feed", name: "MIT Tech Review AI" },
+      { type: "rss", url: "https://simonwillison.net/atom/everything/", name: "Simon Willison" },
+      { type: "rss", url: "https://www.latent.space/feed", name: "Latent Space" },
+      { type: "rss", url: "https://jack-clark.net/feed/", name: "Import AI" },
+      { type: "rss", url: "https://www.deeplearning.ai/the-batch/feed/", name: "The Batch" },
+      { type: "rss", url: "https://www.semianalysis.com/feed", name: "SemiAnalysis" },
+      { type: "reddit", url: "LocalLLaMA", name: "r/LocalLLaMA" },
+      { type: "reddit", url: "MachineLearning", name: "r/MachineLearning" },
+      { type: "reddit", url: "artificial", name: "r/artificial" },
+      { type: "reddit", url: "OpenAI", name: "r/OpenAI" },
+      { type: "reddit", url: "singularity", name: "r/singularity" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg", name: "Two Minute Papers" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCZHmQk67mSJgfCCTn7xBfew", name: "Yannic Kilcher" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCNJ1Ymd5yFuUPtn21xtRbbw", name: "AI Explained" },
+    ],
+  },
 
-const VALID_TYPES = ["standard","tool","model","protocol","technique","company","file","dataset","benchmark","concept"];
+  // beyondtheperipheral.com — paranormal / UFO / conspiracy / cryptid / unexplained
+  paranormal: {
+    entityGuidance:
+      `Extract specific, named, NEW or fast-rising mysteries a paranormal/unexplained blog could write about: a specific UFO/UAP sighting or disclosure, a named cryptid encounter or case, a conspiracy or coverup, a haunting/paranormal event, an unexplained disappearance or cold case, a strange scientific anomaly. Prefer concrete named cases/events over generic themes. DO NOT extract generic topics ("ghosts","aliens","UFOs" in the abstract), long-settled famous cases with no new development, or lone people's names.`,
+    types: ["sighting","case","cryptid","conspiracy","phenomenon","event","location","disappearance","claim","concept"],
+    flagLabel: "Story pick",
+    flagCriteria:
+      `true if this is a fresh, dramatic, under-reported mystery that "Beyond the Peripheral" (sensationalist investigative paranormal/UFO/conspiracy blog) should turn into an article now; else false`,
+    fileIssues: false,
+    defaultOut: "public/radar-beyond.json",
+    sources: [
+      { type: "reddit", url: "UFOs", name: "r/UFOs" },
+      { type: "reddit", url: "Paranormal", name: "r/Paranormal" },
+      { type: "reddit", url: "UnresolvedMysteries", name: "r/UnresolvedMysteries" },
+      { type: "reddit", url: "Ghosts", name: "r/Ghosts" },
+      { type: "reddit", url: "cryptids", name: "r/cryptids" },
+      { type: "reddit", url: "conspiracy", name: "r/conspiracy" },
+      { type: "reddit", url: "HighStrangeness", name: "r/HighStrangeness" },
+      { type: "rss", url: "https://www.coasttocoastam.com/rss/weird-news/", name: "Coast to Coast AM" },
+      { type: "rss", url: "https://mysteriousuniverse.org/feed/", name: "Mysterious Universe" },
+      { type: "rss", url: "https://www.theblackvault.com/casefiles/feed/", name: "The Black Vault" },
+      { type: "rss", url: "https://openminds.tv/feed/", name: "Open Minds UFO" },
+      { type: "rss", url: "https://www.latest-ufo-sightings.net/feed/atom", name: "Latest UFO Sightings" },
+      { type: "rss", url: "https://www.earthfiles.com/feed/", name: "Earthfiles" },
+      { type: "rss", url: "https://feeds.feedburner.com/TheUFOChronicles", name: "The UFO Chronicles" },
+      { type: "rss", url: "https://cryptomundo.com/feed/", name: "Cryptomundo" },
+      { type: "rss", url: "https://www.phantomsandmonsters.com/feeds/posts/default?alt=rss", name: "Phantoms and Monsters" },
+      { type: "rss", url: "https://weekinweird.com/feed/", name: "Week in Weird" },
+      { type: "rss", url: "https://www.ancient-origins.net/rss.xml", name: "Ancient Origins" },
+      { type: "rss", url: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml", name: "BBC Science" },
+      { type: "rss", url: "https://www.livescience.com/feeds/all", name: "Live Science" },
+      { type: "rss", url: "https://www.sciencedaily.com/rss/strange_offbeat.xml", name: "Science Daily Strange" },
+      { type: "rss", url: "https://www.dailystar.co.uk/news/weird-news/rss", name: "Daily Star Weird" },
+      { type: "rss", url: "https://www.mirror.co.uk/news/weird-news/rss.xml", name: "Mirror Weird" },
+      { type: "rss", url: "https://www.atlasobscura.com/feeds/latest", name: "Atlas Obscura" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC7WMgAJFGFqNQP-5LbPE7FA", name: "The Why Files" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCuHn_E6xPuhI_jiOvQXaVIg", name: "The Black Vault" },
+      { type: "youtube", url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCtPrkXdtCM5DACLufB9jbsA", name: "MrBallen" },
+    ],
+  },
+};
+
+const cfg = GENRE_CONFIGS[GENRE];
+if (!cfg) { console.error(`Unknown genre '${GENRE}'. Known: ${Object.keys(GENRE_CONFIGS).join(", ")}`); process.exit(1); }
+const SOURCES = cfg.sources;
+const VALID_TYPES = cfg.types;
+const OUT = (() => { const i = args.indexOf("--out"); return i >= 0 ? args[i + 1] : cfg.defaultOut; })();
 
 // ---------- helpers ----------
 const sha256 = (s) => createHash("sha256").update(s).digest("hex");
@@ -173,7 +230,7 @@ async function insertStories(rows) {
 let ingested = 0;
 if (!NO_INGEST) {
   const batch = [];
-  for (const s of AI_SOURCES) {
+  for (const s of SOURCES) {
     try {
       if (s.type === "reddit") {
         const posts = await fetchReddit(s.url);
@@ -207,15 +264,14 @@ const { rows: stories } = await client.query(
      ORDER BY created_at DESC LIMIT 150`, [GENRE, since]);
 console.log(`[detect] scanning ${stories.length} recent stories`);
 
-const SYSTEM = `You spot GENUINELY NEW or fast-rising named "things" in AI/developer news that a founder or SEO product should know early.
-Given a numbered list of stories, extract only concrete, named entities that are new/newly-popular: new standards or conventions (e.g. "agents.md","llms.txt","MCP"), new tools/frameworks/SDKs, models, protocols, techniques, benchmarks, datasets, or notable new products.
-DO NOT extract generic topics ("AI","machine learning","chatbots"), established products with no news, vague themes, or lone people's names.
+const SYSTEM = `You spot GENUINELY NEW or fast-rising named "things" worth acting on early.
+Given a numbered list of stories, ${cfg.entityGuidance}
 Return ONLY a JSON array. Each item:
-- name (canonical display, e.g. "AGENTS.md")
-- normalized_name (lowercase slug, merge aliases; e.g. "agents-md")
+- name (canonical display)
+- normalized_name (lowercase slug, merge aliases)
 - entity_type (one of ${VALID_TYPES.join(", ")})
 - why_it_matters (1-2 concrete sentences)
-- getvisus_relevant (true if a UK small-business SEO/website-audit SaaS should support or write about it, e.g. a new web standard/file/convention sites should adopt like agents.md or llms.txt; else false)
+- getvisus_relevant (${cfg.flagCriteria})
 - getvisus_reason (1 sentence if relevant, else null)
 - story_indices (array of the story numbers that mention it)`;
 
@@ -236,6 +292,7 @@ for (let start = 0; start < stories.length; start += 30) {
       candidates.push({ ...e, idxs });
     }
   } catch (e) { console.warn(`chunk ${start} failed: ${e.message}`); }
+  await new Promise((r) => setTimeout(r, 1200)); // gentle on free-tier rate limits
 }
 console.log(`[detect] candidates: ${candidates.length}`);
 
@@ -309,7 +366,7 @@ const { rows: top } = await client.query(
     WHERE genre_id=$1 AND status <> 'fading'
     ORDER BY emerging_score DESC LIMIT 60`, [GENRE]);
 
-const out = { generated_at: new Date().toISOString(), genre: GENRE, count: top.length, items: top };
+const out = { generated_at: new Date().toISOString(), genre: GENRE, flag_label: cfg.flagLabel, count: top.length, items: top };
 await mkdir(dirname(OUT), { recursive: true });
 await writeFile(OUT, JSON.stringify(out, null, 2));
 console.log(`[export] wrote ${top.length} items -> ${OUT}`);
@@ -319,7 +376,7 @@ console.log(`[export] wrote ${top.length} items -> ${OUT}`);
 // Runs only in CI (needs GITHUB_TOKEN + GITHUB_REPOSITORY). Each hit files once.
 const GH_TOKEN = process.env.GITHUB_TOKEN;
 const GH_REPO = process.env.GITHUB_REPOSITORY; // "owner/repo"
-if (GH_TOKEN && GH_REPO) {
+if (GH_TOKEN && GH_REPO && cfg.fileIssues) {
   const { rows: hits } = await client.query(
     `SELECT id, name, entity_type, why_it_matters, getvisus_reason, emerging_score,
             source_count, velocity_24h, status, sample_urls
