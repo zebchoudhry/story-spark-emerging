@@ -1,0 +1,165 @@
+{
+  "generated_at": "2026-08-08T18:50:37.061Z",
+  "genre": "ai",
+  "count": 9,
+  "items": [
+    {
+      "name": "Datasette",
+      "entity_type": "tool",
+      "why_it_matters": "An open-source ecosystem for exploring and publishing data, which recently released patches addressing SQL injection security issues.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-06T18:22:07.000Z",
+      "last_seen_at": "2026-08-06T18:24:34.000Z",
+      "mention_count": 2,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "6.06",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/6/datasette-2/#atom-everything",
+        "https://simonwillison.net/2026/Aug/6/datasette/#atom-everything"
+      ]
+    },
+    {
+      "name": "LLM",
+      "entity_type": "tool",
+      "why_it_matters": "Simon Willison's open-source CLI utility and Python library for interacting with AI models, which added support for visible reasoning traces and server-side tools in version 0.32.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-04T17:15:33.000Z",
+      "last_seen_at": "2026-08-04T23:58:24.000Z",
+      "mention_count": 3,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "5.51",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/4/llm/#atom-everything",
+        "https://simonwillison.net/2026/Aug/4/llm-anthropic/#atom-everything",
+        "https://simonwillison.net/2026/Aug/4/new-release-of-llm/#atom-everything"
+      ]
+    },
+    {
+      "name": "Muse Spark 1.2",
+      "entity_type": "model",
+      "why_it_matters": "An updated version of Meta's Muse Spark foundation model built for long-context comprehension.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-05T23:58:35.000Z",
+      "last_seen_at": "2026-08-05T23:58:35.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "4.41",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/5/muse-code-and-muse-spark-12/#atom-everything"
+      ]
+    },
+    {
+      "name": "Muse Code",
+      "entity_type": "model",
+      "why_it_matters": "A code-generation AI model released by Meta Research focusing on long-sequence context capabilities.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-05T23:58:35.000Z",
+      "last_seen_at": "2026-08-05T23:58:35.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "4.41",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/5/muse-code-and-muse-spark-12/#atom-everything"
+      ]
+    },
+    {
+      "name": "MiniMax-H3",
+      "entity_type": "model",
+      "why_it_matters": "An AI model released by MiniMax that has been converted to MLX format for optimized execution on Apple Silicon.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-04T19:10:09.000Z",
+      "last_seen_at": "2026-08-04T19:10:09.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "3.72",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/4/minimax-h3-mlx/#atom-everything"
+      ]
+    },
+    {
+      "name": "Qwen 3.8 Max",
+      "entity_type": "model",
+      "why_it_matters": "Alibaba's new multi-trillion parameter open-weights model optimized for enterprise coding and multi-agent workflows.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-04T03:49:14.000Z",
+      "last_seen_at": "2026-08-04T03:49:14.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "3.36",
+      "status": "established",
+      "sample_urls": [
+        "https://www.latent.space/p/ainews-qwen-38-max24t-and-27b-new"
+      ]
+    },
+    {
+      "name": "condense-json",
+      "entity_type": "tool",
+      "why_it_matters": "A utility library created by Simon Willison to shrink JSON output sizes for more efficient LLM context usage.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-02T22:19:59.000Z",
+      "last_seen_at": "2026-08-03T04:56:26.000Z",
+      "mention_count": 2,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "3.32",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/2/condense-json/#atom-everything",
+        "https://simonwillison.net/2026/Aug/3/condense-json/#atom-everything"
+      ]
+    },
+    {
+      "name": "Meat proxy",
+      "entity_type": "concept",
+      "why_it_matters": "A term coined by Niklas Gruhn describing humans who uncritically copy and paste AI-generated software suggestions without verifying them.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-03T23:45:04.000Z",
+      "last_seen_at": "2026-08-03T23:45:04.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "3.26",
+      "status": "established",
+      "sample_urls": [
+        "https://simonwillison.net/2026/Aug/3/dont-be-a-meat-proxy/#atom-everything"
+      ]
+    },
+    {
+      "name": "ChatGPT Work",
+      "entity_type": "concept",
+      "why_it_matters": "OpenAI's enterprise agent suite integrating persistent memory, browser automation, subagents, and business app integrations.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-07-28T15:26:30.000Z",
+      "last_seen_at": "2026-08-04T18:20:14.000Z",
+      "mention_count": 2,
+      "source_count": 1,
+      "velocity_24h": 0,
+      "emerging_score": "1",
+      "status": "established",
+      "sample_urls": [
+        "https://www.latent.space/p/chatgpt-work",
+        "https://www.latent.space/p/unpacking-chatgpt-work"
+      ]
+    }
+  ]
+}
