@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignalForge | We automate authority — not content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F5F7FA; }
+      
+      /* SignalForge Scrollbar - "Steel & Orange" */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0B0F1A; }
+      ::-webkit-scrollbar-thumb { background: #374151; border-radius: 0px; }
+      ::-webkit-scrollbar-thumb:hover { background: #FF6A00; }
+      
+      .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+      
+      /* Brand Color Utilities */
+      .bg-signal-black { background-color: #0B0F1A; }
+      .bg-forged-white { background-color: #F5F7FA; }
+      .bg-signal-orange { background-color: #FF6A00; }
+      .text-signal-orange { color: #FF6A00; }
+      .border-signal-orange { border-color: #FF6A00; }
+      .hover-signal-orange:hover { background-color: #FF8C32; }
+      
+      /* Status Colors */
+      .status-verified { color: #14B8A6; border-color: #14B8A6; background-color: #F0FDFA; }
+      .status-unverified { color: #B45309; border-color: #FBBF24; background-color: #FFFBEB; }
+      .status-rejected { color: #DC2626; border-color: #FCA5A5; background-color: #FEF2F2; }
+
+      /* UI Behavior: Decisive Buttons */
+      button { letter-spacing: 0.025em; }
+      
+      /* Text Selection */
+      ::selection { background-color: #FF6A00; color: white; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+  }
+}
+</script>
+</head>
+  <body class="bg-[#F5F7FA] text-[#111827] antialiased">
+    <div id="root"></div>
+  </body>
+</html>
