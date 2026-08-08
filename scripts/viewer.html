@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Emerging Radar — AI &amp; Dev</title>
+<style>
+  :root {
+    --bg: #0b0f1a; --card: #111827; --border: #1f2937; --fg: #e5e7eb;
+    --muted: #9ca3af; --accent: #ff6a00; --new: #34d399; --rising: #fb923c; --sky: #38bdf8;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 28px 20px 12px; max-width: 900px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 24px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); font-size: 13px; }
+  main { max-width: 900px; margin: 0 auto; padding: 12px 20px 60px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 12px; }
+  .card:hover { border-color: rgba(255,106,0,.4); }
+  .row { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  .name { font-size: 17px; font-weight: 700; margin: 0; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
+  .tag { font-size: 11px; text-transform: capitalize; padding: 2px 8px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted); }
+  .tag.new { color: var(--new); border-color: rgba(52,211,153,.4); }
+  .tag.rising { color: var(--rising); border-color: rgba(251,146,60,.4); }
+  .tag.gv { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .why { color: var(--fg); font-size: 14px; margin: 6px 0; }
+  .gv { color: var(--accent); font-size: 12px; margin: 4px 0; }
+  .meta { color: var(--muted); font-size: 12px; display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+  .links a { color: var(--sky); font-size: 12px; margin-right: 12px; text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
+  .score { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; }
+  .empty { text-align: center; color: var(--muted); padding: 60px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🛰️ Emerging Radar — AI &amp; Dev</h1>
+  <div class="sub" id="sub">Loading…</div>
+</header>
+<main id="list"></main>
+<script>
+const RADAR_URL = new URLSearchParams(location.search).get("src") || "./radar.json";
+const esc = (s) => (s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c]));
+function ago(iso){ const h=(Date.now()-new Date(iso).getTime())/36e5; if(h<1)return"just now"; if(h<24)return Math.round(h)+"h ago"; return Math.round(h/24)+"d ago"; }
+
+fetch(RADAR_URL, { cache: "no-store" }).then(r => r.json()).then(data => {
+  document.getElementById("sub").textContent =
+    `${data.count} things · updated ${ago(data.generated_at)}`;
+  const list = document.getElementById("list");
+  if (!data.items?.length) { list.innerHTML = '<div class="empty">Nothing on the radar yet.</div>'; return; }
+  list.innerHTML = data.items.map(e => `
+    <div class="card">
+      <div class="row">
+        <div style="min-width:0">
+          <p class="name">${esc(e.name)}</p>
+          <div class="tags">
+            <span class="tag">${esc(e.entity_type)}</span>
+            <span class="tag ${esc(e.status)}">${esc(e.status)}</span>
+            ${e.getvisus_relevant ? '<span class="tag gv">GetVisus</span>' : ''}
+          </div>
+          ${e.why_it_matters ? `<p class="why">${esc(e.why_it_matters)}</p>` : ''}
+          ${e.getvisus_relevant && e.getvisus_reason ? `<p class="gv">↳ GetVisus: ${esc(e.getvisus_reason)}</p>` : ''}
+          <div class="meta">
+            <span>⚡ ${e.velocity_24h} in 24h</span>
+            <span>📈 ${e.source_count} sources · ${e.mention_count} mentions</span>
+            <span>first seen ${ago(e.first_seen_at)}</span>
+            <span class="score">score ${e.emerging_score}</span>
+          </div>
+          <div class="links">
+            ${(e.sample_urls||[]).slice(0,3).map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noreferrer">source ${i+1} ↗</a>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>`).join("");
+}).catch(err => {
+  document.getElementById("sub").textContent = "Failed to load radar.json";
+  console.error(err);
+});
+</script>
+</body>
+</html>

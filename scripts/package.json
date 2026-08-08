@@ -1,0 +1,12 @@
+{
+  "name": "emerging-engine",
+  "private": true,
+  "type": "module",
+  "description": "Daily AI/dev emerging-things engine (Neon + GitHub Actions).",
+  "scripts": {
+    "run": "node run-emerging.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

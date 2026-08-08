@@ -1,0 +1,70 @@
+name: Emerging Radar (daily)
+
+on:
+  schedule:
+    - cron: "0 7 * * *"   # 07:00 UTC daily
+  workflow_dispatch: {}    # manual "Scan now" from the Actions tab
+
+permissions:
+  contents: write          # to commit public/radar.json
+  pages: write
+  id-token: write
+
+concurrency:
+  group: emerging-radar
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: scripts
+        run: npm install --no-audit --no-fund
+
+      - name: Run emerging engine
+        working-directory: scripts
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LOVABLE_API_KEY: ${{ secrets.LOVABLE_API_KEY }}
+        run: node run-emerging.mjs --out ../public/radar.json
+
+      - name: Commit radar.json
+        run: |
+          git config user.name "emerging-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add public/radar.json
+          if git diff --staged --quiet; then
+            echo "no radar changes"
+          else
+            git commit -m "chore: update emerging radar [skip ci]"
+            git push
+          fi
+
+      # Optional public viewer via GitHub Pages (radar.json + static viewer).
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site
+          cp public/radar.json _site/radar.json
+          cp scripts/viewer.html _site/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy-pages:
+    needs: scan
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
