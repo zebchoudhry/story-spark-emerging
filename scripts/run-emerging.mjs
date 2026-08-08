@@ -129,45 +129,74 @@ async function llmJSON(system, user) {
 
 // ---------- main ----------
 const { Client } = pg;
-const client = new Client({ connectionString: DB_URL, ssl: { rejectUnauthorized: false } });
+const client = new Client({
+  connectionString: DB_URL,
+  ssl: { rejectUnauthorized: false },
+  keepAlive: true,
+  statement_timeout: 0,
+  query_timeout: 0,
+});
+client.on("error", (e) => console.warn(`[db] client error: ${e.message}`));
 await client.connect();
 
 // schema
 await client.query(await readFile(new URL("./schema.sql", import.meta.url), "utf8"));
 
+// Batch-insert stories to keep round-trips (and total connection time) low —
+// Neon drops long single connections doing thousands of one-row inserts.
+async function insertStories(rows) {
+  if (rows.length === 0) return 0;
+  // de-dupe within batch by (source_type, external_id)
+  const seen = new Set();
+  const uniq = rows.filter((r) => {
+    const k = `${r[1]}::${r[3]}`;
+    if (seen.has(k)) return false; seen.add(k); return true;
+  });
+  let inserted = 0;
+  const COLS = 8;
+  const CHUNK = 500;
+  for (let i = 0; i < uniq.length; i += CHUNK) {
+    const slice = uniq.slice(i, i + CHUNK);
+    const values = slice.map((_, j) => {
+      const b = j * COLS;
+      return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8})`;
+    }).join(",");
+    const params = slice.flat();
+    const res = await client.query(
+      `INSERT INTO stories_raw (genre_id, source_type, source_name, external_id, title, body, url, published_at)
+       VALUES ${values} ON CONFLICT (source_type, external_id) DO NOTHING`, params);
+    inserted += res.rowCount;
+  }
+  return inserted;
+}
+
 let ingested = 0;
 if (!NO_INGEST) {
+  const batch = [];
   for (const s of AI_SOURCES) {
     try {
       if (s.type === "reddit") {
         const posts = await fetchReddit(s.url);
         for (const p of posts) {
           const d = p.data; if (!d?.id || !d?.title) continue;
-          const res = await client.query(
-            `INSERT INTO stories_raw (genre_id, source_type, source_name, external_id, title, body, url, published_at)
-             VALUES ($1,'reddit',$2,$3,$4,$5,$6,$7) ON CONFLICT (source_type, external_id) DO NOTHING`,
-            [GENRE, s.name, d.id, d.title, d.selftext ?? "", `https://reddit.com${d.permalink}`,
-             new Date((d.created_utc ?? Date.now()/1000) * 1000).toISOString()]);
-          ingested += res.rowCount;
+          batch.push([GENRE, "reddit", s.name, d.id, d.title, d.selftext ?? "",
+            `https://reddit.com${d.permalink}`,
+            new Date((d.created_utc ?? Date.now()/1000) * 1000).toISOString()]);
         }
       } else {
         const r = await fetchTimeout(s.url, { headers: { "User-Agent": "EmergingRadar/1.0" } });
         if (!r.ok) { console.warn(`RSS ${s.name} -> ${r.status}`); continue; }
         const items = parseRSS(await r.text());
         for (const it of items) {
-          const ext = sha256(it.link);
           const pub = it.pubDate ? new Date(it.pubDate) : null;
-          const res = await client.query(
-            `INSERT INTO stories_raw (genre_id, source_type, source_name, external_id, title, body, url, published_at)
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (source_type, external_id) DO NOTHING`,
-            [GENRE, s.type, s.name || domain(s.url), ext, it.title, it.description || null, it.link,
-             pub && !isNaN(pub) ? pub.toISOString() : null]);
-          ingested += res.rowCount;
+          batch.push([GENRE, s.type, s.name || domain(s.url), sha256(it.link), it.title,
+            it.description || null, it.link, pub && !isNaN(pub) ? pub.toISOString() : null]);
         }
       }
     } catch (e) { console.warn(`source ${s.name} failed: ${e.message}`); }
   }
-  console.log(`[ingest] new stories: ${ingested}`);
+  ingested = await insertStories(batch);
+  console.log(`[ingest] fetched ${batch.length} items, new stories: ${ingested}`);
 }
 
 // pull recent stories
