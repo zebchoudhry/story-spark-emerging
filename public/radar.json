@@ -1,8 +1,93 @@
 {
-  "generated_at": "2026-08-08T19:09:47.545Z",
+  "generated_at": "2026-08-08T19:11:24.145Z",
   "genre": "ai",
-  "count": 9,
+  "count": 14,
   "items": [
+    {
+      "name": "Refybe",
+      "entity_type": "tool",
+      "why_it_matters": "Refybe allows brands to generate custom interactive AI marketing games in their own brand identity.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T19:06:14.000Z",
+      "last_seen_at": "2026-08-08T19:06:14.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "9",
+      "status": "new",
+      "sample_urls": [
+        "https://refybe.com/en"
+      ]
+    },
+    {
+      "name": "Dirge",
+      "entity_type": "tool",
+      "why_it_matters": "Dirge is a batteries-included coding agent written in Rust designed for automated local software engineering workflows.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:46:09.000Z",
+      "last_seen_at": "2026-08-08T18:46:09.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.99",
+      "status": "new",
+      "sample_urls": [
+        "https://dirge-code.github.io/"
+      ]
+    },
+    {
+      "name": "Parakeet TDT 0.6B v2",
+      "entity_type": "model",
+      "why_it_matters": "It is a compact speech-to-text model capable of running client-side directly in web browsers using WebGPU.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:58:01.000Z",
+      "last_seen_at": "2026-08-08T18:58:01.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.99",
+      "status": "new",
+      "sample_urls": [
+        "https://parakeet.narcotic.sh/"
+      ]
+    },
+    {
+      "name": "JustAPI",
+      "entity_type": "tool",
+      "why_it_matters": "JustAPI is a Python web framework built on a Rust core to deliver high performance async request handling.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:29:07.000Z",
+      "last_seen_at": "2026-08-08T18:29:07.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.97",
+      "status": "new",
+      "sample_urls": [
+        "https://blog.swadhin.cv/blog/just-api-a-python-framework/"
+      ]
+    },
+    {
+      "name": "Algebruh",
+      "entity_type": "tool",
+      "why_it_matters": "Algebruh cross-checks arithmetic claims using automated theorem provers and solvers like Z3, cvc5, and Lean.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:04:15.000Z",
+      "last_seen_at": "2026-08-08T18:04:15.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.96",
+      "status": "new",
+      "sample_urls": [
+        "https://github.com/skorotkiewicz/algebruh"
+      ]
+    },
     {
       "name": "Datasette",
       "entity_type": "tool",
@@ -94,7 +179,7 @@
     {
       "name": "Qwen 3.8 Max",
       "entity_type": "model",
-      "why_it_matters": "Alibaba's new multi-trillion parameter open-weights model optimized for enterprise coding and multi-agent workflows.",
+      "why_it_matters": "Qwen 3.8 Max is a massive 2.4T parameter open-weights model tailored specifically for advanced coding and enterprise collaboration tasks.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-04T03:49:14.000Z",
@@ -102,7 +187,7 @@
       "mention_count": 1,
       "source_count": 1,
       "velocity_24h": 0,
-      "emerging_score": "3.36",
+      "emerging_score": "3.35",
       "status": "established",
       "sample_urls": [
         "https://www.latent.space/p/ainews-qwen-38-max24t-and-27b-new"
@@ -145,10 +230,10 @@
     },
     {
       "name": "ChatGPT Work",
-      "entity_type": "concept",
-      "why_it_matters": "OpenAI's enterprise agent suite integrating persistent memory, browser automation, subagents, and business app integrations.",
-      "getvisus_relevant": false,
-      "getvisus_reason": null,
+      "entity_type": "tool",
+      "why_it_matters": "ChatGPT Work is OpenAI's enterprise agent platform incorporating subagents, memory, scheduling, and automated browser tools for workplace automation.",
+      "getvisus_relevant": true,
+      "getvisus_reason": "Small businesses and SEO tools need to understand how enterprise AI agents crawl and interact with website interfaces via automated workflows.",
       "first_seen_at": "2026-07-28T15:26:30.000Z",
       "last_seen_at": "2026-08-04T18:20:14.000Z",
       "mention_count": 2,
