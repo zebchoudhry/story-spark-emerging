@@ -159,8 +159,10 @@ async function fetchReddit(sub) {
   return [];
 }
 
-// ---------- LLM ----------
-async function llmJSON(system, user) {
+// ---------- LLM (with 429 retry/backoff for free-tier rate limits) ----------
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function llmOnce(system, user) {
   if (GEMINI_API_KEY) {
     const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
     const r = await fetch(
@@ -171,17 +173,38 @@ async function llmJSON(system, user) {
           contents: [{ role: "user", parts: [{ text: user }] }],
           generationConfig: { temperature: 0.2, responseMimeType: "application/json" },
         }) });
+    if (r.status === 429) { const e = new Error("429"); e.status = 429; e.body = await r.text(); throw e; }
     if (!r.ok) throw new Error(`Gemini ${r.status}: ${await r.text()}`);
     const d = await r.json();
     return d.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
   }
   const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST", headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ model: "google/gemini-2.5-flash",
+    body: JSON.stringify({ model: process.env.LOVABLE_MODEL || "google/gemini-2.5-flash",
       messages: [{ role: "system", content: system }, { role: "user", content: user }] }) });
+  if (r.status === 429) { const e = new Error("429"); e.status = 429; e.body = await r.text(); throw e; }
   if (!r.ok) throw new Error(`Lovable ${r.status}: ${await r.text()}`);
   const d = await r.json();
   return d.choices?.[0]?.message?.content ?? "";
+}
+
+async function llmJSON(system, user) {
+  const MAX = 4;
+  for (let attempt = 1; attempt <= MAX; attempt++) {
+    try {
+      return await llmOnce(system, user);
+    } catch (e) {
+      if (e.status === 429 && attempt < MAX) {
+        // honour server retryDelay if present, else exponential backoff (cap 30s)
+        const m = (e.body || "").match(/"retryDelay":\s*"(\d+(?:\.\d+)?)s"/);
+        const wait = Math.min(30000, m ? Math.ceil(parseFloat(m[1]) * 1000) + 1000 : attempt * 8000);
+        console.warn(`[llm] 429 rate-limited, waiting ${Math.round(wait/1000)}s (attempt ${attempt}/${MAX})`);
+        await sleep(wait);
+        continue;
+      }
+      throw e;
+    }
+  }
 }
 
 // ---------- main ----------

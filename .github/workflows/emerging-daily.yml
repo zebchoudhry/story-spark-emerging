@@ -40,6 +40,9 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: node run-emerging.mjs --genre ai --out ../public/radar.json
 
+      - name: Cool down (free-tier per-minute quota)
+        run: sleep 65
+
       - name: Run emerging engine (Beyond the Peripheral)
         working-directory: scripts
         env:
