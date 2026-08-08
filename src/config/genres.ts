@@ -410,7 +410,7 @@ export const GENRES: Record<string, Genre> = {
   },
 };
 
-export const DEFAULT_GENRE = "paranormal" as const;
+export const DEFAULT_GENRE = "ai" as const;
 
 export function getGenre(id: string): Genre | undefined {
   return GENRES[id];

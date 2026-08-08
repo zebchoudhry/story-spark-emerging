@@ -118,7 +118,7 @@ const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedTrend, setSelectedTrend] = useState("all");
   const [selectedGenre, setSelectedGenre] = useState(
-    () => localStorage.getItem("selected_genre") || "paranormal"
+    () => localStorage.getItem("selected_genre") || "ai"
   );
   const { toast } = useToast();
 
