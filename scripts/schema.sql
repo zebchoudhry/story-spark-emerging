@@ -34,10 +34,13 @@ CREATE TABLE IF NOT EXISTS emerging_entities (
   emerging_score    NUMERIC NOT NULL DEFAULT 0,
   status            TEXT NOT NULL DEFAULT 'new',
   sample_urls       TEXT[] NOT NULL DEFAULT '{}',
+  getvisus_issued   BOOLEAN NOT NULL DEFAULT false,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (genre_id, normalized_name)
 );
+-- for pre-existing tables:
+ALTER TABLE emerging_entities ADD COLUMN IF NOT EXISTS getvisus_issued BOOLEAN NOT NULL DEFAULT false;
 CREATE INDEX IF NOT EXISTS idx_emerging_score  ON emerging_entities(emerging_score DESC);
 CREATE INDEX IF NOT EXISTS idx_emerging_status ON emerging_entities(status);
 

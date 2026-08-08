@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-08-08T19:11:24.145Z",
+  "generated_at": "2026-08-08T19:24:37.577Z",
   "genre": "ai",
-  "count": 14,
+  "count": 15,
   "items": [
     {
       "name": "Refybe",
@@ -18,23 +18,6 @@
       "status": "new",
       "sample_urls": [
         "https://refybe.com/en"
-      ]
-    },
-    {
-      "name": "Dirge",
-      "entity_type": "tool",
-      "why_it_matters": "Dirge is a batteries-included coding agent written in Rust designed for automated local software engineering workflows.",
-      "getvisus_relevant": false,
-      "getvisus_reason": null,
-      "first_seen_at": "2026-08-08T18:46:09.000Z",
-      "last_seen_at": "2026-08-08T18:46:09.000Z",
-      "mention_count": 1,
-      "source_count": 1,
-      "velocity_24h": 1,
-      "emerging_score": "8.99",
-      "status": "new",
-      "sample_urls": [
-        "https://dirge-code.github.io/"
       ]
     },
     {
@@ -55,9 +38,43 @@
       ]
     },
     {
+      "name": "Parakeet TDT",
+      "entity_type": "model",
+      "why_it_matters": "An efficient ASR speech recognition model using Transducer with Dense Tokenization capable of running client-side in browsers via WebGPU.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:58:01.000Z",
+      "last_seen_at": "2026-08-08T18:58:01.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.98",
+      "status": "new",
+      "sample_urls": [
+        "https://parakeet.narcotic.sh/"
+      ]
+    },
+    {
+      "name": "Dirge",
+      "entity_type": "tool",
+      "why_it_matters": "Dirge is an open-source, batteries-included coding agent written in Rust designed for speed and autonomous local development.",
+      "getvisus_relevant": false,
+      "getvisus_reason": null,
+      "first_seen_at": "2026-08-08T18:46:09.000Z",
+      "last_seen_at": "2026-08-08T18:46:09.000Z",
+      "mention_count": 1,
+      "source_count": 1,
+      "velocity_24h": 1,
+      "emerging_score": "8.98",
+      "status": "new",
+      "sample_urls": [
+        "https://dirge-code.github.io/"
+      ]
+    },
+    {
       "name": "JustAPI",
       "entity_type": "tool",
-      "why_it_matters": "JustAPI is a Python web framework built on a Rust core to deliver high performance async request handling.",
+      "why_it_matters": "A high-performance Python web framework that implements its core execution engine and async runtime natively in Rust.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T18:29:07.000Z",
@@ -74,7 +91,7 @@
     {
       "name": "Algebruh",
       "entity_type": "tool",
-      "why_it_matters": "Algebruh cross-checks arithmetic claims using automated theorem provers and solvers like Z3, cvc5, and Lean.",
+      "why_it_matters": "A tool designed to verify and cross-check arithmetic claims using automated provers and SMT solvers including Z3, cvc5, and Lean.",
       "getvisus_relevant": false,
       "getvisus_reason": null,
       "first_seen_at": "2026-08-08T18:04:15.000Z",
@@ -82,7 +99,7 @@
       "mention_count": 1,
       "source_count": 1,
       "velocity_24h": 1,
-      "emerging_score": "8.96",
+      "emerging_score": "8.95",
       "status": "new",
       "sample_urls": [
         "https://github.com/skorotkiewicz/algebruh"

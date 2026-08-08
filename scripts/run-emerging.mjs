@@ -314,5 +314,59 @@ await mkdir(dirname(OUT), { recursive: true });
 await writeFile(OUT, JSON.stringify(out, null, 2));
 console.log(`[export] wrote ${top.length} items -> ${OUT}`);
 
+// ---------- auto-task: open a GitHub issue per NEW GetVisus-relevant hit ----------
+// GitHub emails the repo owner on new issues, so this doubles as the alert.
+// Runs only in CI (needs GITHUB_TOKEN + GITHUB_REPOSITORY). Each hit files once.
+const GH_TOKEN = process.env.GITHUB_TOKEN;
+const GH_REPO = process.env.GITHUB_REPOSITORY; // "owner/repo"
+if (GH_TOKEN && GH_REPO) {
+  const { rows: hits } = await client.query(
+    `SELECT id, name, entity_type, why_it_matters, getvisus_reason, emerging_score,
+            source_count, velocity_24h, status, sample_urls
+       FROM emerging_entities
+      WHERE genre_id=$1 AND getvisus_relevant = true AND getvisus_issued = false
+        AND status <> 'fading'
+      ORDER BY emerging_score DESC`, [GENRE]);
+  console.log(`[getvisus] new hits to file: ${hits.length}`);
+  for (const h of hits) {
+    const srcs = (h.sample_urls || []).map((u) => `- ${u}`).join("\n") || "(none)";
+    const body =
+      `**Emerging thing flagged for GetVisus**\n\n` +
+      `**${h.name}** _(${h.entity_type}, ${h.status})_\n\n` +
+      `**Why it matters:** ${h.why_it_matters ?? "—"}\n\n` +
+      `**GetVisus angle:** ${h.getvisus_reason ?? "—"}\n\n` +
+      `Score ${h.emerging_score} · ${h.source_count} sources · ${h.velocity_24h} in 24h\n\n` +
+      `**Sources:**\n${srcs}\n\n` +
+      `_Filed automatically by the Emerging Radar._`;
+    try {
+      const r = await fetch(`https://api.github.com/repos/${GH_REPO}/issues`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${GH_TOKEN}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "User-Agent": "emerging-radar",
+        },
+        body: JSON.stringify({
+          title: `GetVisus radar: ${h.name}`,
+          body,
+          labels: ["getvisus-hit", "emerging-radar"],
+        }),
+      });
+      if (r.ok) {
+        const issue = await r.json();
+        await client.query(`UPDATE emerging_entities SET getvisus_issued = true WHERE id=$1`, [h.id]);
+        console.log(`[getvisus] issue #${issue.number} for ${h.name}`);
+      } else {
+        console.warn(`[getvisus] issue failed for ${h.name}: ${r.status} ${await r.text()}`);
+      }
+    } catch (e) {
+      console.warn(`[getvisus] issue error for ${h.name}: ${e.message}`);
+    }
+  }
+} else {
+  console.log("[getvisus] skipping issue filing (no GITHUB_TOKEN/GITHUB_REPOSITORY — local run)");
+}
+
 await client.end();
 console.log("done.");
