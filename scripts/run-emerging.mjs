@@ -208,16 +208,23 @@ async function llmJSON(system, user) {
 }
 
 // ---------- main ----------
+// Neon free computes get recycled if a connection sits idle. LLM detection can
+// wait minutes on rate limits, so we hold the DB connection ONLY around actual
+// queries: connect for ingest+read, disconnect during LLM, reconnect for writes.
 const { Client } = pg;
-const client = new Client({
-  connectionString: DB_URL,
-  ssl: { rejectUnauthorized: false },
-  keepAlive: true,
-  statement_timeout: 0,
-  query_timeout: 0,
-});
-client.on("error", (e) => console.warn(`[db] client error: ${e.message}`));
-await client.connect();
+async function connectDB() {
+  const c = new Client({
+    connectionString: DB_URL,
+    ssl: { rejectUnauthorized: false },
+    keepAlive: true,
+    statement_timeout: 0,
+    query_timeout: 0,
+  });
+  c.on("error", (e) => console.warn(`[db] client error: ${e.message}`));
+  await c.connect();
+  return c;
+}
+let client = await connectDB();
 
 // schema
 await client.query(await readFile(new URL("./schema.sql", import.meta.url), "utf8"));
@@ -284,8 +291,11 @@ const since = new Date(Date.now() - LOOKBACK_HOURS * 3600 * 1000).toISOString();
 const { rows: stories } = await client.query(
   `SELECT id, title, body, url, source_name, published_at, created_at
      FROM stories_raw WHERE genre_id=$1 AND created_at >= $2
-     ORDER BY created_at DESC LIMIT 150`, [GENRE, since]);
+     ORDER BY created_at DESC LIMIT 120`, [GENRE, since]);
 console.log(`[detect] scanning ${stories.length} recent stories`);
+
+// Release the DB during the (possibly slow, rate-limited) LLM phase.
+await client.end();
 
 const SYSTEM = `You spot GENUINELY NEW or fast-rising named "things" worth acting on early.
 Given a numbered list of stories, ${cfg.entityGuidance}
@@ -299,10 +309,10 @@ Return ONLY a JSON array. Each item:
 - story_indices (array of the story numbers that mention it)`;
 
 const candidates = [];
-for (let start = 0; start < stories.length; start += 30) {
-  const chunk = stories.slice(start, start + 30);
+for (let start = 0; start < stories.length; start += 50) {
+  const chunk = stories.slice(start, start + 50);
   const list = chunk.map((s, i) => {
-    const snip = (s.body ?? "").replace(/\s+/g," ").slice(0, 280);
+    const snip = (s.body ?? "").replace(/\s+/g," ").slice(0, 180);
     return `[${start + i}] ${s.title} — ${s.source_name}${snip ? `\n    ${snip}` : ""}`;
   }).join("\n");
   try {
@@ -332,6 +342,9 @@ for (const e of candidates) {
     if (!ex.why_it_matters && e.why_it_matters) ex.why_it_matters = e.why_it_matters;
   } else merged.set(key, { ...e, key });
 }
+
+// reconnect for the write phase
+client = await connectDB();
 
 // upsert + mentions + aggregates
 let upserted = 0;
